@@ -1,1 +1,1 @@
-# CS4067-Assgt-EventBooking-22i-1056-MuhammadAhmad-repo
+# Simple Events App 
