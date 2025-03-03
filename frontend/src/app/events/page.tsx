@@ -3,13 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 interface Event {
   id: string;
   title: string;
   description: string;
   date: string;
-  seats: number; // Total seats (treated as remaining for now)
+  seats: number;
 }
 
 export default function DashboardPage() {
@@ -17,23 +18,20 @@ export default function DashboardPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [eventsLoading, setEventsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [bookingLoading, setBookingLoading] = useState<string | null>(null); // Track booking loading state for specific event
+  const [bookingLoading, setBookingLoading] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch events from the event service (publicly available, no token needed)
     const fetchEvents = async () => {
       try {
-        const response = await fetch('/api/events', { // No token required
+        const response = await fetch('/api/events', {
           headers: {
-            'Cache-Control': 'no-cache', // Optional: Prevent caching if needed
+            'Cache-Control': 'no-cache',
           },
         });
-        
         if (!response.ok) {
           throw new Error('Failed to fetch events');
         }
-        
         const data = await response.json();
         setEvents(data);
       } catch (error: any) {
@@ -43,35 +41,31 @@ export default function DashboardPage() {
         setEventsLoading(false);
       }
     };
-
-    fetchEvents(); // Fetch events regardless of user login status
+    fetchEvents();
   }, []);
 
-  // Handle booking an event
   const handleBookEvent = async (eventId: string) => {
     if (!user) {
-      // Redirect to login if not authenticated
       router.push('/login');
       return;
     }
-
-    if (user.role === 'admin') {
-      // No action for admins
-      alert('Admins cannot book events.');
+    const token = Cookies.get('token');
+    const role = jwtDecode(token).role;
+    if (role === 'admin') {
+      // alert('Admins cannot book events.');
       return;
     }
 
-    if (user.role === 'user') {
-      setBookingLoading(eventId); // Show loading for this specific event
+    if (role === 'user') {
+      setBookingLoading(eventId);
       try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`/api/events/${eventId}/book`, {
+        const response = await fetch('http://localhost:3001/bookings', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ userId: user.id }), // Assuming user has an ID
+          credentials: 'include',
+          body: JSON.stringify({ eventId }),
         });
 
         if (!response.ok) {
@@ -80,16 +74,15 @@ export default function DashboardPage() {
 
         const data = await response.json();
         alert(`Event ${eventId} booked successfully for ${user.first_name} ${user.last_name}!`);
-        // Optionally, refetch events to update remaining seats
-        await fetchEvents();
       } catch (error: any) {
         setError(error.message);
       } finally {
-        setBookingLoading(null); // Hide loading
+        setBookingLoading(null);
       }
     }
   };
 
+  // Rest of the component (JSX) remains unchanged
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -103,7 +96,7 @@ export default function DashboardPage() {
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          {user && ( // Only show welcome and logout if user is logged in
+          {user && (
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">Welcome, {user?.first_name} {user?.last_name}</span>
               <button
@@ -121,13 +114,11 @@ export default function DashboardPage() {
           <div className="px-4 py-6 sm:px-0">
             <div className="p-6">
               <h2 className="text-2xl font-bold mb-6 text-gray-900">Upcoming Events</h2>
-              
               {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
                   {error}
                 </div>
               )}
-              
               {eventsLoading ? (
                 <p className="text-gray-500">Loading events...</p>
               ) : events.length === 0 ? (
