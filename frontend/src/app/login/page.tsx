@@ -20,7 +20,7 @@ export default function LoginPage() {
     const result = await login(email, password);
     
     if (result.success) {
-      router.push('/dashboard');
+      router.push('/admin/events');
     } else {
       setError(result.error || 'Login failed');
     }
@@ -80,7 +80,7 @@ export default function LoginPage() {
             <div className="text-red-500 text-sm text-center">{error}</div>
           )}
 
-          <div className="flex items-center justify-between">
+          {/* <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input
                 id="remember-me"
@@ -98,7 +98,7 @@ export default function LoginPage() {
                 Forgot your password?
               </Link>
             </div>
-          </div>
+          </div> */}
 
           <div>
             <button
