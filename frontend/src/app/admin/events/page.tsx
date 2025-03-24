@@ -65,8 +65,12 @@ export default function AdminEventsPage() {
       
       const data = await response.json();
       setEvents(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -106,8 +110,12 @@ export default function AdminEventsPage() {
       
       // Refresh events list
       fetchEvents();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     }
   };
 
@@ -137,8 +145,12 @@ export default function AdminEventsPage() {
       setSelectedEvent(null);
       setFormData({ title: '', description: '', date: '', seats: 0 });
       fetchEvents();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     }
   };
 
@@ -163,8 +175,12 @@ export default function AdminEventsPage() {
       
       // Refresh events list
       fetchEvents();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown error occurred');
+      }
     }
   };
 
