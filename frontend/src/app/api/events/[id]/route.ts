@@ -28,6 +28,7 @@ export async function DELETE(
     
     return new NextResponse(null, { status: 204 });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Failed to delete event' }, { status: 500 });
   }
 }
@@ -62,6 +63,7 @@ export async function PUT(
     const data = await response.json(); // Get the updated event from Spring Boot
     return NextResponse.json(data, { status: 200 }); // Return the updated event to the frontend
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Failed to update event' }, { status: 500 });
   }
 }
