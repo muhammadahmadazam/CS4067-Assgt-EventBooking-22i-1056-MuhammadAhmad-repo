@@ -2,10 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080';
 
+// interface Context {
+//   params: {
+//     id: string;
+//   };
+// }
+
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> })  {
   const token = request.headers.get('Authorization');
   
   if (!token) {
@@ -13,7 +18,7 @@ export async function DELETE(
   }
   
   try {
-    const { id } = params;
+    const { id } = await params;
     
     const response = await fetch(`${BACKEND_URL}/api/events/${id}`, {
       method: 'DELETE',
@@ -35,7 +40,7 @@ export async function DELETE(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }// Ensuring correct parameter typing
 ) {
   const token = request.headers.get('Authorization');
   
@@ -44,7 +49,7 @@ export async function PUT(
   }
   
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json(); // Get the updated event data
     
     const response = await fetch(`${BACKEND_URL}/api/events/${id}`, {
