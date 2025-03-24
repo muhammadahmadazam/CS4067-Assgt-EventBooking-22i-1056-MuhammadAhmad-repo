@@ -1,2 +1,6 @@
-.env*
-node_modules
+.env.example
+.env.local
+.env.development
+.env.test
+.env.production
+node_modules/
