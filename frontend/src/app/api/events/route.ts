@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Fetch events from Spring Boot without requiring a token (publicly available)
     const response = await fetch(`${BACKEND_URL}/api/events`, {
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     
     const data = await response.json();
     return NextResponse.json(data);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 });
   }
 }
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to create event' }, { status: 500 });
   }
 }
