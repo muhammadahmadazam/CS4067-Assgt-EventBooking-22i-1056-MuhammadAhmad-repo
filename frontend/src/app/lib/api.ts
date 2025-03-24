@@ -3,7 +3,7 @@ import config from './config';
 
 interface FetchOptions {
   method?: string;
-  data?: any;
+  data?: Record<string, unknown>;
   token?: string;
 }
 
@@ -79,7 +79,7 @@ export const events = {
 
 // Bookings API functions  
 export const bookings = {
-  create: (bookingData: any, token: string) => 
+  create: (bookingData: { eventId: string; userId: string; date: string }, token: string) => 
     apiClient(
       config.apiEndpoints.bookings, 
       { method: 'POST', data: bookingData, token }
