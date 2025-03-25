@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080';
+const EVENT_SERVICE_URL = process.env.EVENT_SERVICE_URL || 'http://localhost:8080';
 
 // interface Context {
 //   params: {
@@ -20,7 +20,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     
-    const response = await fetch(`${BACKEND_URL}/api/events/${id}`, {
+    const response = await fetch(`${EVENT_SERVICE_URL}/api/events/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': token
@@ -52,7 +52,7 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json(); // Get the updated event data
     
-    const response = await fetch(`${BACKEND_URL}/api/events/${id}`, {
+    const response = await fetch(`${EVENT_SERVICE_URL}/api/events/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

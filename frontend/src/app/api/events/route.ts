@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080';
+const EVENT_SERVICE_URL = process.env.EVENT_SERVICE_URL || 'http://localhost:8080';
 
 export async function GET() {
   try {
     // Fetch events from Spring Boot without requiring a token (publicly available)
-    const response = await fetch(`${BACKEND_URL}/api/events`, {
+    const response = await fetch(`${EVENT_SERVICE_URL}/api/events`, {
       headers: {
         'Cache-Control': 'no-cache', // Optional: Prevent caching if needed
       },
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    const response = await fetch(`${BACKEND_URL}/api/events`, {
+    const response = await fetch(`${EVENT_SERVICE_URL}/api/events`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
