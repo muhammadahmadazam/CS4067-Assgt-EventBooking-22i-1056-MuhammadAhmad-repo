@@ -2,3 +2,7 @@ fastapi
 uvicorn 
 passlib[bcrypt] 
 pyjwt
+dotenv
+sqlalchemy
+psycopg2-binary
+pydantic[email]

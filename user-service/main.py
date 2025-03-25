@@ -20,12 +20,14 @@ from database import get_db
 from models import User, UserRole
 from schemas import UserCreate, UserResponse, Token, TokenData
 
-app = FastAPI()
-print("Frontend URL is :", os.getenv("FRONTEND_URL"))
+app = FastAPI();
+
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+
 # Set up CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
