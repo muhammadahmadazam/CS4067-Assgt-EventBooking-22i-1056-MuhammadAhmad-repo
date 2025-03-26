@@ -306,7 +306,7 @@ func isValidEmail(email string) bool {
 // main function
 func main() {
 	// Load environment variables from .env file
-	err := godotenv.Load("../.env") // Try loading from project root (adjust if needed)
+	err := godotenv.Load(".env") // Try loading from project root (adjust if needed)
 	if err != nil {
 		log.Printf("Warning: .env file not found, using system environment variables: %v", err)
 	}
