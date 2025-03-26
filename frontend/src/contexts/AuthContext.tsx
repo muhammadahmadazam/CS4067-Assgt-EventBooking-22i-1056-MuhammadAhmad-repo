@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUserData = async (token: string) => {
     try {
-      const response = await fetch('http://localhost:8000/api/users/me', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_USER_SERVICE_URL}/api/users/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -53,15 +53,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       // Create form data
       const formData = new FormData();
-      formData.append('username', email);  // Note: must use 'username' even though it's an email
+      formData.append('username', email);  
       formData.append('password', password);
       
-      const response = await fetch('http://localhost:8000/api/auth/login', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_USER_SERVICE_URL}/api/auth/login`, {
         method: 'POST',
-        // headers: {
-        //   'Content-Type': 'application/json',
-        // },
-        // body: JSON.stringify({ username: email, password }),
         body: formData,
       });
 
@@ -74,9 +70,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Store token
       localStorage.setItem('token', data.access_token);
       Cookies.set('token', data.access_token);
+      
       // Fetch user data
       await fetchUserData(data.access_token);
-      
+
       return { success: true };
     } catch (error) {
       return { 
@@ -92,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     
     try {
-      const response = await fetch('http://localhost:8000/api/auth/register', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_USER_SERVICE_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

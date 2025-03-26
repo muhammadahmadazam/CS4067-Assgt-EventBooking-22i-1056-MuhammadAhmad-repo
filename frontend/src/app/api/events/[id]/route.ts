@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080';
+const EVENT_SERVICE_URL = process.env.EVENT_SERVICE_URL || 'http://localhost:8080';
+
+// interface Context {
+//   params: {
+//     id: string;
+//   };
+// }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> })  {
   const token = request.headers.get('Authorization');
   
   if (!token) {
@@ -13,9 +18,9 @@ export async function DELETE(
   }
   
   try {
-    const { id } = params;
+    const { id } = await params;
     
-    const response = await fetch(`${BACKEND_URL}/api/events/${id}`, {
+    const response = await fetch(`${EVENT_SERVICE_URL}/api/events/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': token
@@ -28,13 +33,14 @@ export async function DELETE(
     
     return new NextResponse(null, { status: 204 });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Failed to delete event' }, { status: 500 });
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }// Ensuring correct parameter typing
 ) {
   const token = request.headers.get('Authorization');
   
@@ -43,10 +49,10 @@ export async function PUT(
   }
   
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json(); // Get the updated event data
     
-    const response = await fetch(`${BACKEND_URL}/api/events/${id}`, {
+    const response = await fetch(`${EVENT_SERVICE_URL}/api/events/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -62,6 +68,7 @@ export async function PUT(
     const data = await response.json(); // Get the updated event from Spring Boot
     return NextResponse.json(data, { status: 200 }); // Return the updated event to the frontend
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Failed to update event' }, { status: 500 });
   }
 }

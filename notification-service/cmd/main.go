@@ -83,6 +83,51 @@ func getClient(ctx context.Context) (*http.Client, error) {
 	return config.Client(ctx, token), nil
 }
 
+// getClient retrieves an OAuth2 client using credentials from environment variables
+func getClientFromEnv(ctx context.Context) (*http.Client, error) {
+	// Load environment variables from .env file
+	err := godotenv.Load("../.env")
+	if err != nil {
+		log.Printf("Warning: .env file not found, using system environment variables: %v", err)
+	}
+
+	// Read credentials and token directly from environment variables
+	credentialsJSON := os.Getenv("GOOGLE_CREDENTIALS_JSON")
+	if credentialsJSON == "" {
+		return nil, fmt.Errorf("GOOGLE_CREDENTIALS_JSON environment variable is not set")
+	}
+
+	// Parse credentials from JSON string
+	config, err := google.ConfigFromJSON([]byte(credentialsJSON), gmail.GmailSendScope)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse client secret JSON to config: %v", err)
+	}
+
+	// Read token from environment variable
+	tokenJSON := os.Getenv("GOOGLE_TOKEN_JSON")
+	if tokenJSON == "" {
+		log.Printf("Token not found in environment, initiating OAuth flow")
+		// Perform OAuth flow to get new token
+		token, err := getTokenFromWebFromEnv(config)
+		if err != nil {
+			return nil, err
+		}
+		// Convert token to JSON string and log for user to save in .env
+		tokenBytes, _ := json.Marshal(token)
+		log.Printf("New token JSON (save this in your .env):\nGOOGLE_TOKEN_JSON='%s'", string(tokenBytes))
+		return config.Client(ctx, token), nil
+	}
+
+	// Parse token from JSON string
+	tok := &oauth2.Token{}
+	err = json.Unmarshal([]byte(tokenJSON), tok)
+	if err != nil {
+		return nil, fmt.Errorf("unable to decode token from environment variable: %v", err)
+	}
+
+	return config.Client(ctx, tok), nil
+}
+
 // tokenFromFile reads a token from a file
 func tokenFromFile(file string) (*oauth2.Token, error) {
 	log.Printf("Reading token file: %s", file)
@@ -102,6 +147,57 @@ func tokenFromFile(file string) (*oauth2.Token, error) {
 
 // getTokenFromWeb uses the OAuth2 flow to get a token with an HTTP server on port 8085
 func getTokenFromWeb(config *oauth2.Config) (*oauth2.Token, error) {
+	// Define redirect URI (port 8085 as specified)
+	const redirectURL = "http://localhost:8085/callback"
+	config.RedirectURL = redirectURL
+	// State token to prevent CSRF
+	state := "state-token"
+	// Start an HTTP server on port 8085 to handle the callback
+	var tokenChan = make(chan *oauth2.Token, 1)
+	var errChan = make(chan error, 1)
+	http.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query()
+		code := query.Get("code")
+		if code == "" {
+			errChan <- fmt.Errorf("no authorization code provided")
+			return
+		}
+		log.Printf("Received OAuth callback with code: %s", code)
+		tok, err := config.Exchange(context.Background(), code)
+		if err != nil {
+			errChan <- fmt.Errorf("unable to exchange token: %v", err)
+			return
+		}
+		log.Printf("Token exchanged successfully: %v", tok)
+		tokenChan <- tok
+		fmt.Fprintf(w, "<html><body>Authorization successful! You can close this window.</body></html>")
+	})
+	go func() {
+		log.Println("Starting OAuth callback server on :8085...")
+		if err := http.ListenAndServe(":8085", nil); err != http.ErrServerClosed {
+			errChan <- fmt.Errorf("callback server failed: %v", err)
+		}
+	}()
+	// Generate auth URL
+	authURL := config.AuthCodeURL(state)
+	log.Printf("Generated OAuth URL: %s", authURL)
+	fmt.Printf("Go to the following URL in your browser to authorize: %v\n", authURL)
+	// Wait for the token or error
+	select {
+	case token := <-tokenChan:
+		log.Printf("Received token from callback: %v", token)
+		return token, nil
+	case err := <-errChan:
+		log.Printf("Error during OAuth flow: %v", err)
+		return nil, err
+	case <-time.After(5 * time.Minute): // Timeout if no response
+		log.Printf("OAuth flow timed out after 5 minutes")
+		return nil, fmt.Errorf("authorization timeout")
+	}
+}
+
+// getTokenFromWeb uses the OAuth2 flow to get a token with an HTTP server on port 8085
+func getTokenFromWebFromEnv(config *oauth2.Config) (*oauth2.Token, error) {
 	// Define redirect URI (port 8085 as specified)
 	const redirectURL = "http://localhost:8085/callback"
 	config.RedirectURL = redirectURL
@@ -210,29 +306,42 @@ func isValidEmail(email string) bool {
 // main function
 func main() {
 	// Load environment variables from .env file
-	err := godotenv.Load("../.env") // Try loading from project root (adjust if needed)
+	err := godotenv.Load(".env") // Try loading from project root (adjust if needed)
 	if err != nil {
 		log.Printf("Warning: .env file not found, using system environment variables: %v", err)
 	}
+
 	// Load environment variables
 	rabbitMQURL := os.Getenv("RABBITMQ_URL")
 	if rabbitMQURL == "" {
 		log.Fatal("RABBITMQ_URL environment variable is not set")
 	}
 	log.Printf("Starting application with RABBITMQ_URL: %s", rabbitMQURL)
+
+	// Get queue name from environment variable, with a default fallback
+	queueName := os.Getenv("RABBITMQ_QUEUE_NAME")
+	if queueName == "" {
+		queueName = "booking_notifications" // Default queue name
+		log.Printf("RABBITMQ_QUEUE_NAME not set, using default: %s", queueName)
+	}
+	log.Printf("Starting application with RABBITMQ_URL: %s, Queue: %s", rabbitMQURL, queueName)
+
 	// Set up context
 	ctx := context.Background()
+
 	// Get Gmail API client
 	log.Printf("Initializing Gmail API client...")
-	client, err := getClient(ctx)
+	client, err := getClientFromEnv(ctx)
 	if err != nil {
 		log.Fatalf("Failed to get Gmail client: %v", err)
 	}
 	log.Printf("Creating Gmail service...")
+
 	srv, err := gmail.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
 		log.Fatalf("Failed to create Gmail service: %v", err)
 	}
+
 	// Connect to RabbitMQ
 	log.Printf("Connecting to RabbitMQ at %s...", rabbitMQURL)
 	conn, err := amqp091.Dial(rabbitMQURL)
@@ -240,28 +349,31 @@ func main() {
 		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
 	}
 	defer conn.Close()
+
 	log.Printf("Opening RabbitMQ channel...")
 	ch, err := conn.Channel()
 	if err != nil {
 		log.Fatalf("Failed to open a channel: %v", err)
 	}
 	defer ch.Close()
+
 	// Declare the queue
-	log.Printf("Declaring queue 'booking_notifications'...")
+	log.Printf("Declaring queue '%s'...", queueName)
 	queue, err := ch.QueueDeclare(
-		"booking_notifications", // queue name
-		true,                    // durable
-		false,                   // auto-delete
-		false,                   // exclusive
-		false,                   // no-wait
-		nil,                     // arguments
+		queueName, // queue name
+		true,      // durable
+		false,     // auto-delete
+		false,     // exclusive
+		false,     // no-wait
+		nil,       // arguments
 	)
 	if err != nil {
 		log.Fatalf("Failed to declare a queue: %v", err)
 	}
-	log.Printf("Queue 'booking_notifications' declared with %d messages", queue.Messages)
+	log.Printf("Queue '%s' declared with %d messages", queueName, queue.Messages)
+
 	// Start consuming messages
-	log.Printf("Starting to consume messages from queue 'booking_notifications'...")
+	log.Printf("Starting to consume messages from queue '%s'...", queueName)
 	msgs, err := ch.Consume(
 		queue.Name, // queue
 		"",         // consumer

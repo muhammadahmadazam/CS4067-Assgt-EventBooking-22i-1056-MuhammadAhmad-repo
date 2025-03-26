@@ -4,13 +4,16 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode, JwtPayload } from 'jwt-decode';
 interface Event {
   id: string;
   title: string;
   description: string;
   date: string;
   seats: number;
+}
+interface MyJWT extends JwtPayload {
+  role: string;
 }
 
 export default function DashboardPage() {
@@ -34,8 +37,10 @@ export default function DashboardPage() {
         }
         const data = await response.json();
         setEvents(data);
-      } catch (error: any) {
-        setError(error.message);
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error.message);
+        }
         setEvents([]);
       } finally {
         setEventsLoading(false);
@@ -50,7 +55,11 @@ export default function DashboardPage() {
       return;
     }
     const token = Cookies.get('token');
-    const role = jwtDecode(token).role;
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+    const role = jwtDecode<MyJWT>(token).role;
     if (role === 'admin') {
       // alert('Admins cannot book events.');
       return;
@@ -73,9 +82,12 @@ export default function DashboardPage() {
         }
 
         const data = await response.json();
+        console.log(data);
         alert(`Event ${eventId} booked successfully for ${user.first_name} ${user.last_name}!`);
-      } catch (error: any) {
-        setError(error.message);
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error.message);
+        }
       } finally {
         setBookingLoading(null);
       }

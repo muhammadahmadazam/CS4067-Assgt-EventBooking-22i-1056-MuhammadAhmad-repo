@@ -1,4 +1,3 @@
-// Load environment variables from a .env file
 require('dotenv').config();
 
 const express = require('express');
@@ -36,7 +35,7 @@ const pool = new Pool({
 // Service URLs loaded from environment variables
 const SPRING_BOOT_URL = process.env.SPRING_BOOT_URL || 'http://localhost:8080';
 const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://localhost';
-const QUEUE_NAME = 'booking_notifications';
+const QUEUE_NAME = process.env.RABBITMQ_QUEUE;
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // Create bookings table if it doesn’t exist
