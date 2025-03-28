@@ -1,0 +1,51 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: event-booking-ingress
+  namespace: onlineeventbookingmuhammadahmad
+  annotations:
+    # Use this annotation if you need to rewrite the path.
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: eventbooking.example.com
+      http:
+        paths:
+          # Routes for backend APIs
+          - path: /api/user(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 8000
+          - path: /api/booking(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: booking-service
+                port:
+                  number: 3001
+          - path: /api/event(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: event-service
+                port:
+                  number: 8080
+          - path: /api/notification(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: notification-service
+                port:
+                  number: 8085
+          # Any other path is directed to the frontend
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 3000
