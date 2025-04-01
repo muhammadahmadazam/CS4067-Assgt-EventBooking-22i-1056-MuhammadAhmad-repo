@@ -30,13 +30,6 @@ spec:
                   key: PGADMIN_DEFAULT_PASSWORD
           ports:
             - containerPort: 80
-          resources:
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-            requests:
-              memory: "64Mi"
-              cpu: "250m"
 
 ---
 
@@ -48,8 +41,9 @@ metadata:
 spec:
   selector:
     app: pgadmin
-  type: ClusterIP
+  type: NodePort
   ports:
     - protocol: TCP
       port: 5050
       targetPort: 80
+      nodePort: 30001

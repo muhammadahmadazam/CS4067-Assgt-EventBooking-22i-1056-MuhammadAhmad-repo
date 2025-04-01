@@ -50,18 +50,9 @@ pool.query(`
 
 // Middleware to decode JWT from cookies and attach user email to request
 const decodeToken = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader) {
-    return res.status(401).json({ error: 'No token provided' });
-  }
-  
-  const token = authHeader.startsWith('Bearer ')
-    ? authHeader.split(' ')[1]
-    : authHeader;
-    
+  const token = req.cookies.token;
   if (!token) {
-    return res.status(401).json({ error: 'Invalid token format' });
+    return res.status(401).json({ error: 'No token provided' });
   }
 
   try {
@@ -80,6 +71,7 @@ const decodeToken = (req, res, next) => {
     return res.status(401).json({ error: 'Invalid or expired token' });
   }
 };
+
 /**
  * @swagger
  * /bookings:
@@ -123,7 +115,7 @@ const decodeToken = (req, res, next) => {
  *       500:
  *         description: Internal server error
  */
-app.post('/book', decodeToken, async (req, res) => {
+app.post('/bookings', decodeToken, async (req, res) => {
   const { eventId } = req.body;
   const userEmail = req.userEmail;
 
@@ -135,7 +127,7 @@ app.post('/book', decodeToken, async (req, res) => {
   }
 
   try {
-    const response = await axios.get(`${SPRING_BOOT_URL}/${eventId}/seats`);
+    const response = await axios.get(`${SPRING_BOOT_URL}/api/events/${eventId}/seats`);
     const availableSeats = response.data;
 
     if (availableSeats <= 0) {

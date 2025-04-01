@@ -15,6 +15,8 @@ RUN mvn dependency:go-offline
 # Copy the source code
 COPY src ./src
 
+RUN echo $SPRING_MONGODB_URI
+
 # Build the Spring Boot JAR
 RUN mvn clean package
 

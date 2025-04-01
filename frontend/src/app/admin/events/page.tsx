@@ -15,7 +15,7 @@ interface Event {
 }
 
 export default function AdminEventsPage() {
-  const { logout } = useAuth();
+    const {logout } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,17 +30,6 @@ export default function AdminEventsPage() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null); // For editing
   const router = useRouter();
 
-  // Replace your relative path with your backend URL from env
-  const BACKEND_URL = process.env.NEXT_PUBLIC_EVENT_SERVICE_URL;
-
-  // Get cookie helper function
-  const getCookie = (name: string) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
-    return null;
-  };
-
   // Check authentication
   useEffect(() => {
     const token = localStorage.getItem('token') || getCookie('token');
@@ -51,12 +40,20 @@ export default function AdminEventsPage() {
     }
   }, [router]);
 
-  // Fetch all events directly from backend
+  // Get cookie helper function
+  const getCookie = (name: string) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+    return null;
+  };
+
+  // Fetch all events
   const fetchEvents = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token') || getCookie('token');
-      const response = await fetch(`${BACKEND_URL}`, {
+      const response = await fetch('/api/events', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -88,13 +85,13 @@ export default function AdminEventsPage() {
     });
   };
 
-  // Create a new event directly on backend
+  // Create a new event
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
       const token = localStorage.getItem('token') || getCookie('token');
-      const response = await fetch(`${BACKEND_URL}`, {
+      const response = await fetch('/api/events', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -122,7 +119,7 @@ export default function AdminEventsPage() {
     }
   };
 
-  // Update an event directly on backend
+  // Update an event
   const handleUpdateEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -130,7 +127,7 @@ export default function AdminEventsPage() {
     
     try {
       const token = localStorage.getItem('token') || getCookie('token');
-      const response = await fetch(`${BACKEND_URL}/${selectedEvent.id}`, {
+      const response = await fetch(`/api/events/${selectedEvent.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -157,7 +154,7 @@ export default function AdminEventsPage() {
     }
   };
 
-  // Delete an event directly on backend
+  // Delete an event
   const handleDeleteEvent = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this event?')) {
       return;
@@ -165,7 +162,7 @@ export default function AdminEventsPage() {
     
     try {
       const token = localStorage.getItem('token') || getCookie('token');
-      const response = await fetch(`${BACKEND_URL}/${id}`, {
+      const response = await fetch(`/api/events/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -270,7 +267,7 @@ export default function AdminEventsPage() {
                             {event.description}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {event.seats}
+                            {event.seats}  {/* Displaying total seats as remaining for now */}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button

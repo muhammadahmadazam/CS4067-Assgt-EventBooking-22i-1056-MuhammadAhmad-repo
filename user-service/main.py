@@ -22,11 +22,12 @@ from schemas import UserCreate, UserResponse, Token, TokenData
 
 app = FastAPI();
 
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 # Set up CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -106,7 +107,7 @@ def user_or_admin(current_user: User = Depends(has_role([UserRole.USER, UserRole
 Base.metadata.create_all(bind=engine)
 
 # Routes
-@app.post("/auth/login", response_model=Token)
+@app.post("/api/auth/login", response_model=Token)
 def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
@@ -125,7 +126,7 @@ def login_for_access_token(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.post("/auth/register", response_model=UserResponse)
+@app.post("/api/auth/register", response_model=UserResponse)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     # Check if user exists
     db_user = db.query(User).filter(User.email == user.email).first()
@@ -150,16 +151,16 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 # User endpoints with role-based access
-@app.get("/users/me", response_model=UserResponse)
+@app.get("/api/users/me", response_model=UserResponse)
 def get_user_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 
-@app.get("/users", response_model=list[UserResponse])
+@app.get("/api/users", response_model=list[UserResponse])
 def get_all_users(current_user: User = Depends(admin_only), db: Session = Depends(get_db)):
     users = db.query(User).all()
     return users
 
-@app.post("/admin/create", response_model=UserResponse)
+@app.post("/api/admin/create", response_model=UserResponse)
 def create_admin(user: UserCreate, current_user: User = Depends(admin_only), db: Session = Depends(get_db)):
     # Check if user exists
     db_user = db.query(User).filter(User.email == user.email).first()
