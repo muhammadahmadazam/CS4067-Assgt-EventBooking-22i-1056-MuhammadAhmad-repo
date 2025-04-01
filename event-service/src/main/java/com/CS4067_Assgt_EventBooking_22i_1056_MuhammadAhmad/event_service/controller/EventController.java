@@ -19,7 +19,7 @@ import com.CS4067_Assgt_EventBooking_22i_1056_MuhammadAhmad.event_service.model.
 import com.CS4067_Assgt_EventBooking_22i_1056_MuhammadAhmad.event_service.service.EventService;
 
 @RestController
-@RequestMapping("/api/events")
+@RequestMapping("/")
 @CrossOrigin(origins = "*") // For development - restrict in production
 public class EventController {
 

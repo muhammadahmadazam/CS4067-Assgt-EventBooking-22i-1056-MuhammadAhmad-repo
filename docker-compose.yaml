@@ -1,42 +1,34 @@
 services:
   frontend:
     container_name: onlineeventmanagement_frontend
-    build: ./frontend
+    build: 
+      context: ./frontend
+      args:
+        - NEXT_PUBLIC_USER_SERVICE_URL=${USER_SERVICE_URL}
+        - NEXT_PUBLIC_EVENT_SERVICE_URL=${SPRING_BOOT_URL}
+        - NEXT_PUBLIC_BOOKING_SERVICE_URL=${BOOKING_SERVICE_URL}
     ports:
       - "${FRONTEND_PORT}:3000"
-    environment:
-      - NEXT_PUBLIC_USER_SERVICE_URL=${USER_SERVICE_URL}
-      - EVENT_SERVICE_URL=${SPRING_BOOT_URL}
     restart: always
 
   booking-service:
     container_name: onlineeventmanagement_booking-service
-    build: ./booking-service
-    ports:
-      - "${BOOKING_SERVICE_PORT}:3001"
+    build: 
+      context: ./booking-service
     environment:
-      # PORT
-      - PORT=${BOOKING_SERVICE_PORT}
-
-        # POSTGRES CONNECTION
       - DB_USER=${POSTGRES_USER}
       - DB_HOST=${POSTGRES_HOST}
       - DB_NAME=${POSTGRES_DB}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_PORT=${POSTGRES_PORT}
-
-        # RABBITMQ CONNECTION
       - RABBITMQ_URL=${RABBITMQ_URL}
       - RABBITMQ_QUEUE=${RABBITMQ_QUEUE}
-
-        # EVENT SERVICE CONNECTION
-      - SPRING_BOOT_URL=${SPRING_BOOT_URL}
-
-        # FRONTEND URL
+      - SPRING_BOOT_URL=${SPRING_BOOT_INTERNAL_URL}
       - FRONTEND_URL=${FRONTEND_URL}
-
-        # JWT SECRET
       - JWT_SECRET=${SECRET_KEY}
+    ports:
+      - "${BOOKING_SERVICE_PORT}:3001"
+    
     depends_on:
       rabbitmq:
         condition: service_started
@@ -58,8 +50,6 @@ services:
       # DATABASE URL [POSTGRES]
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
 
-      # FRONTEND URL
-      - FRONTEND_URL=${FRONTEND_URL}
     depends_on:
       - postgres
     restart: always
@@ -110,6 +100,8 @@ services:
       - ME_CONFIG_MONGODB_SERVER=mongo
       - ME_CONFIG_BASICAUTH_USERNAME=admin
       - ME_CONFIG_BASICAUTH_PASSWORD=password
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     depends_on:
       - mongo
     restart: always

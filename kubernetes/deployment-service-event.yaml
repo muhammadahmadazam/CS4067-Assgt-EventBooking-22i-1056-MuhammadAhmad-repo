@@ -17,13 +17,13 @@ spec:
       containers:
         - name: event-service
           image: 22i1056/cs4067-assgt-eventbooking-22i-1056-muhammadahmad-repo-event-service:latest
-          # resources:
-          #   limits:
-          #     memory: "128Mi"
-          #     cpu: "500m"
-          #   requests:
-          #     memory: "64Mi"
-          #     cpu: "250m"
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
           env:
             - name: MONGO_INITDB_ROOT_USERNAME
               valueFrom:
@@ -66,8 +66,8 @@ metadata:
 spec:
   selector:
     app: event-service
+  type: ClusterIP
   ports:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-  type: ClusterIP

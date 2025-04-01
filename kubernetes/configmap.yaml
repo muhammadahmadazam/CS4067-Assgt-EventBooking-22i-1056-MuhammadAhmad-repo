@@ -4,9 +4,10 @@ metadata:
   name: onlineeventbookingmuhammadahmad-config
   namespace: onlineeventbookingmuhammadahmad
 data:
-  FRONTEND_URL: http://localhost:3000
-  USER_SERVICE_URL: http://localhost:30004
-  SPRING_BOOT_URL: http://event-service:8080
+  FRONTEND_URL: http://onlineeventbooking.com
+  USER_SERVICE_URL: http://onlineeventbooking.com/api/users
+  SPRING_BOOT_URL: http://onlineeventbooking.com/api/events
+  SPRING_BOOT_INTERNAL_URL: http://event-service:8080
 
   
   # RABBITMQ
@@ -24,6 +25,6 @@ data:
   ACCESS_TOKEN_EXPIRE_MINUTES: "30"
 
   # MONGODB
-  MONGO_HOST: mongo
+  MONGO_HOST: mongo 
   MONGO_PORT: "27017"
   MONGO_DB: event_booking

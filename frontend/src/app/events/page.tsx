@@ -23,11 +23,12 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [bookingLoading, setBookingLoading] = useState<string | null>(null);
   const router = useRouter();
+  const BACKEND_URL = process.env.NEXT_PUBLIC_EVENT_SERVICE_URL;
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch('/api/events', {
+        const response = await fetch(`${BACKEND_URL}`, {
           headers: {
             'Cache-Control': 'no-cache',
           },
@@ -47,7 +48,7 @@ export default function DashboardPage() {
       }
     };
     fetchEvents();
-  }, []);
+  }, [BACKEND_URL]);
 
   const handleBookEvent = async (eventId: string) => {
     if (!user) {
@@ -68,10 +69,11 @@ export default function DashboardPage() {
     if (role === 'user') {
       setBookingLoading(eventId);
       try {
-        const response = await fetch('http://localhost:3001/bookings', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BOOKING_SERVICE_URL}/book`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': token,
           },
           credentials: 'include',
           body: JSON.stringify({ eventId }),

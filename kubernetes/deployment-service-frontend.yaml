@@ -17,13 +17,13 @@ spec:
       containers:
         - name: frontend
           image: 22i1056/cs4067-assgt-eventbooking-22i-1056-muhammadahmad-repo-frontend:latest
-          # resources:
-          #   limits:
-          #     memory: "128Mi"
-          #     cpu: "500m"
-          #   requests:
-          #     memory: "64Mi"
-          #     cpu: "250m"
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
           ports:
             - containerPort: 3000
           env:
@@ -51,5 +51,5 @@ spec:
   type: ClusterIP
   ports:
     - protocol: TCP
-      port: 80
+      port: 3000
       targetPort: 3000
