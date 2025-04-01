@@ -37,13 +37,13 @@ spec:
               value: scram-sha-256
             - name: POSTGRES_INITDB_ARGS
               value: "--auth-host=scram-sha-256"
-          # resources:
-          #   limits:
-          #     memory: "128Mi"
-          #     cpu: "500m"
-          #   requests:
-          #     memory: "64Mi"
-          #     cpu: "250m"
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
           ports:
             - containerPort: 5432
 

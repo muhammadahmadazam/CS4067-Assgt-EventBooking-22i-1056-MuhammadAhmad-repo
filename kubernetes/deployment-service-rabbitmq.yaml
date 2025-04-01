@@ -17,13 +17,13 @@ spec:
       containers:
         - name: rabbitmq
           image: rabbitmq:3-management
-          # resources:
-          #   limits:
-          #     memory: "128Mi"
-          #     cpu: "500m"
-          #   requests:
-          #     memory: "64Mi"
-          #     cpu: "250m"
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
           ports:
             - containerPort: 5672
             - containerPort: 15672
@@ -55,12 +55,11 @@ metadata:
 spec:
   selector:
     app: rabbitmq
-  type: NodePort
+  type: ClusterIP
   ports:
     - name: rabbitmq-15672
       protocol: TCP
       port: 15672
       targetPort: 15672
-      nodePort: 30002
 
 
