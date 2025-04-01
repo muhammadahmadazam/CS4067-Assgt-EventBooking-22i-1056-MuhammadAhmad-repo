@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       formData.append('username', email);  
       formData.append('password', password);
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_USER_SERVICE_URL}/api/auth/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_USER_SERVICE_URL}/api/users/auth/login`, {
         method: 'POST',
         body: formData,
       });
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_USER_SERVICE_URL}/api/auth/register`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_USER_SERVICE_URL}/api/users/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
