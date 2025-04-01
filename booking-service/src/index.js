@@ -115,7 +115,7 @@ const decodeToken = (req, res, next) => {
  *       500:
  *         description: Internal server error
  */
-app.post('/bookings', decodeToken, async (req, res) => {
+app.post('/api/bookings', decodeToken, async (req, res) => {
   const { eventId } = req.body;
   const userEmail = req.userEmail;
 
@@ -127,7 +127,7 @@ app.post('/bookings', decodeToken, async (req, res) => {
   }
 
   try {
-    const response = await axios.get(`${SPRING_BOOT_URL}/api/events/${eventId}/seats`);
+    const response = await axios.get(`${SPRING_BOOT_URL}/${eventId}/seats`);
     const availableSeats = response.data;
 
     if (availableSeats <= 0) {

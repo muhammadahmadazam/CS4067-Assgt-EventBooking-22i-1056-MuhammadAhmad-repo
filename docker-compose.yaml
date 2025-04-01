@@ -1,12 +1,14 @@
 services:
   frontend:
     container_name: onlineeventmanagement_frontend
-    build: ./frontend
-    ports:
-      - "${FRONTEND_PORT}:3000"
-    environment:
+    build: 
+      context: ./frontend
+      args:
       - NEXT_PUBLIC_USER_SERVICE_URL=${USER_SERVICE_URL}
-      - EVENT_SERVICE_URL=${SPRING_BOOT_URL}
+      - NEXT_PUBLIC_EVENT_SERVICE_URL=${SPRING_BOOT_URL}
+      - NEXT_PUBLIC_BOOKING_SERVICE_URL=${BOOKING_SERVICE_URL}
+    ports:
+      - "${FRONTEND_PORT}:3000"    
     restart: always
 
   booking-service:
@@ -30,7 +32,7 @@ services:
       - RABBITMQ_QUEUE=${RABBITMQ_QUEUE}
 
         # EVENT SERVICE CONNECTION
-      - SPRING_BOOT_URL=${SPRING_BOOT_URL}
+      - SPRING_BOOT_URL=${SPRING_BOOT_INTERNAL_URL}
 
         # FRONTEND URL
       - FRONTEND_URL=${FRONTEND_URL}

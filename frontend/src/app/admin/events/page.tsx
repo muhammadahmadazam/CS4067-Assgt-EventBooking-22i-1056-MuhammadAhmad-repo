@@ -56,7 +56,7 @@ export default function AdminEventsPage() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token') || getCookie('token');
-      const response = await fetch(`${BACKEND_URL}/api/events`, {
+      const response = await fetch(`${BACKEND_URL}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -94,7 +94,7 @@ export default function AdminEventsPage() {
     
     try {
       const token = localStorage.getItem('token') || getCookie('token');
-      const response = await fetch(`${BACKEND_URL}/api/events`, {
+      const response = await fetch(`${BACKEND_URL}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -130,7 +130,7 @@ export default function AdminEventsPage() {
     
     try {
       const token = localStorage.getItem('token') || getCookie('token');
-      const response = await fetch(`${BACKEND_URL}/api/events/${selectedEvent.id}`, {
+      const response = await fetch(`${BACKEND_URL}/${selectedEvent.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -165,7 +165,7 @@ export default function AdminEventsPage() {
     
     try {
       const token = localStorage.getItem('token') || getCookie('token');
-      const response = await fetch(`${BACKEND_URL}/api/events/${id}`, {
+      const response = await fetch(`${BACKEND_URL}/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

@@ -4,9 +4,11 @@ metadata:
   name: onlineeventbookingmuhammadahmad-config
   namespace: onlineeventbookingmuhammadahmad
 data:
-  FRONTEND_URL: http://localhost:3000
-  USER_SERVICE_URL: http://localhost:30004
-  SPRING_BOOT_URL: http://event-service:8080
+  FRONTEND_URL: http://onlineeventbooking.com
+  USER_SERVICE_URL: http://onlineeventbooking.com/api/users
+  SPRING_BOOT_URL: http://onlineeventbooking.com/api/events
+  SPRING_BOOT_INTERNAL_URL: http://event-service:8080/api/events
+  BOOKING_SERVICE_URL: http://onlineeventbooking.com/api/bookings
 
   
   # RABBITMQ

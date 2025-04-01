@@ -65,7 +65,7 @@ spec:
             - name: SPRING_BOOT_URL
               valueFrom:
                 configMapKeyRef:
-                  key: SPRING_BOOT_URL
+                  key: SPRING_BOOT_INTERNAL_URL
                   name: onlineeventbookingmuhammadahmad-config
             - name: FRONTEND_URL
               valueFrom:
