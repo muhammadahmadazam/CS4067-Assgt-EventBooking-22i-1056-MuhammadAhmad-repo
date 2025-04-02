@@ -1,4 +1,4 @@
-#  Microservices-Based Online Event Booking Platform  
+
 
 ## About This Project  
 
@@ -20,3 +20,9 @@ Follow the individual service setup guides in their respective folders. Each mic
 ```bash
 git clone https://github.com/your-repo/CS4067-Assgt-EventBooking.git
 cd CS4067-Assgt-EventBooking
+```
+
+## Architecture Diagram
+
+The following diagram illustrates the communication between different components. Requests first hit the Ingress Controller, which matches it and passes it to the microservices.
+![Architecture Diagram](image.png)
