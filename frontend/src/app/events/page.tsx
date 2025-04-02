@@ -25,23 +25,39 @@ export default function DashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
+
+    // Get cookie helper function
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+      return null;
+    };
+
+    // Fetch all events directly from backend
     const fetchEvents = async () => {
+      const BACKEND_URL = process.env.NEXT_PUBLIC_EVENT_SERVICE_URL;
+      setEventsLoading(true);
       try {
-        const response = await fetch('/api/events', {
+        const token = localStorage.getItem('token') || getCookie('token');
+        const response = await fetch(`${BACKEND_URL}`, {
           headers: {
-            'Cache-Control': 'no-cache',
-          },
+            'Authorization': `Bearer ${token}`
+          }
         });
+        
         if (!response.ok) {
           throw new Error('Failed to fetch events');
         }
+        
         const data = await response.json();
         setEvents(data);
-      } catch (error) {
-        if (error instanceof Error) {
-          setError(error.message);
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('An unknown error occurred');
         }
-        setEvents([]);
       } finally {
         setEventsLoading(false);
       }
@@ -68,7 +84,7 @@ export default function DashboardPage() {
     if (role === 'user') {
       setBookingLoading(eventId);
       try {
-        const response = await fetch('http://localhost:3001/bookings', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BOOKING_SERVICE_URL}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

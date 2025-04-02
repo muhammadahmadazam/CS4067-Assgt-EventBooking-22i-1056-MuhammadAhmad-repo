@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: onlineeventbookingmuhammadahmad
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      namespace: onlineeventbookingmuhammadahmad
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: 22i1056/cs4067-assgt-eventbooking-22i-1056-muhammadahmad-repo-user-service:latest
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+          ports:
+            - containerPort: 8000
+          env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: SECRET_KEY
+                  name: onlineeventbookingmuhammadahmad-secret 
+            - name: ALGORITHM
+              valueFrom:
+                secretKeyRef:
+                  key: ALGORITHM
+                  name: onlineeventbookingmuhammadahmad-secret
+            - name: ACCESS_TOKEN_EXPIRY
+              valueFrom:
+                configMapKeyRef:
+                  key: ACCESS_TOKEN_EXPIRE_MINUTES
+                  name: onlineeventbookingmuhammadahmad-config
+            - name: FRONTEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: FRONTEND_URL
+                  name: onlineeventbookingmuhammadahmad-config         
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: onlineeventbookingmuhammadahmad-config
+                  key: POSTGRES_HOST
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: onlineeventbookingmuhammadahmad-config
+                  key: POSTGRES_DB
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: onlineeventbookingmuhammadahmad-config
+                  key: POSTGRES_PORT
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: onlineeventbookingmuhammadahmad-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: onlineeventbookingmuhammadahmad-secret
+                  key: POSTGRES_PASSWORD
+            - name: DATABASE_URL
+              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)"
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: onlineeventbookingmuhammadahmad
+spec:
+  selector:
+    app: user-service
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000

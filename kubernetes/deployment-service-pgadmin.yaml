@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin-deployment
+  namespace: onlineeventbookingmuhammadahmad
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin
+  template:
+    metadata:
+      namespace: onlineeventbookingmuhammadahmad
+      labels:
+        app: pgadmin
+    spec:
+      containers:
+        - name: pgadmin
+          image: dpage/pgadmin4:latest
+          env:
+            - name: PGADMIN_DEFAULT_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: onlineeventbookingmuhammadahmad-secret
+                  key: PGADMIN_DEFAULT_EMAIL
+            - name: PGADMIN_DEFAULT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: onlineeventbookingmuhammadahmad-secret
+                  key: PGADMIN_DEFAULT_PASSWORD
+          ports:
+            - containerPort: 80
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin
+  namespace: onlineeventbookingmuhammadahmad
+spec:
+  selector:
+    app: pgadmin
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 5050
+      targetPort: 80

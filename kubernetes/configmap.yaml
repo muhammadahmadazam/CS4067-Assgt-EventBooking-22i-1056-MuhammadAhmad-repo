@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: onlineeventbookingmuhammadahmad-config
+  namespace: onlineeventbookingmuhammadahmad
+data:
+  FRONTEND_URL: http://onlineeventbooking.com
+  USER_SERVICE_URL: http://onlineeventbooking.com/api/users
+  SPRING_BOOT_URL: http://onlineeventbooking.com/api/events
+  SPRING_BOOT_INTERNAL_URL: http://event-service:8080/api/events
+  BOOKING_SERVICE_URL: http://onlineeventbooking.com/api/bookings
+
+  
+  # RABBITMQ
+  RABBITMQ_URL: amqp://rabbitmq
+  RABBITMQ_QUEUE: booking_notifications
+
+  # POSTGRES
+  POSTGRES_HOST: postgres
+  POSTGRES_DB: event_booking
+  POSTGRES_PORT: "5432"
+
+  # PGADMIN
+  PGADMIN_PORT: "5050"
+
+  ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+
+  # MONGODB
+  MONGO_HOST: mongo
+  MONGO_PORT: "27017"
+  MONGO_DB: event_booking

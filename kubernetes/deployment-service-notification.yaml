@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: onlineeventbookingmuhammadahmad
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      namespace: onlineeventbookingmuhammadahmad
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: 22i1056/cs4067-assgt-eventbooking-22i-1056-muhammadahmad-repo-notification-service:latest
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+          ports:
+            - containerPort: 8085
+          env:
+            - name: RABBITMQ_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: onlineeventbookingmuhammadahmad-config
+                  key: RABBITMQ_URL
+            - name: RABBITMQ_QUEUE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: onlineeventbookingmuhammadahmad-config
+                  key: RABBITMQ_QUEUE
+            - name: GOOGLE_CREDENTIALS_JSON
+              valueFrom:
+                secretKeyRef:
+                  name: onlineeventbookingmuhammadahmad-secret
+                  key: GOOGLE_CREDENTIALS_JSON
+            - name: GOOGLE_TOKEN_JSON
+              valueFrom:
+                secretKeyRef:
+                  name: onlineeventbookingmuhammadahmad-secret
+                  key: GOOGLE_TOKEN_JSON
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: onlineeventbookingmuhammadahmad
+spec:
+  selector:
+    app: notification-service
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 8085
+      targetPort: 8085

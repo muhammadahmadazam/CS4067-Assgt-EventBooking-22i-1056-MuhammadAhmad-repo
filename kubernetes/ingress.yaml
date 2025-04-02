@@ -1,0 +1,88 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: event-booking-ingress
+  namespace: onlineeventbookingmuhammadahmad
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - onlineeventbooking.com
+        - mongo-express.onlineeventbooking.com
+        - pgadmin.onlineeventbooking.com
+        - rabbitmq.onlineeventbooking.com
+      secretName: tls-secret
+  rules:
+    - host: onlineeventbooking.com
+      http:
+        paths:
+          # Routes for backend APIs
+          - path: /api/users
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 8000
+          - path: /api/bookings
+            pathType: Prefix
+            backend:
+              service:
+                name: booking-service
+                port:
+                  number: 3001
+          - path: /api/events
+            pathType: Prefix
+            backend:
+              service:
+                name: event-service
+                port:
+                  number: 8080
+          # - path: /api/notifications
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       name: notification-service
+          #       port:
+          #         number: 8085
+          # Any other path is directed to the frontend
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 3000
+
+    - host: mongo-express.onlineeventbooking.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mongo-express-service
+                port:
+                  number: 8081
+
+    - host: pgadmin.onlineeventbooking.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pgadmin
+                port:
+                  number: 5050
+
+    - host: rabbitmq.onlineeventbooking.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rabbitmq-management
+                port:
+                  number: 15672

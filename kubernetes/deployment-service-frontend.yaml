@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: onlineeventbookingmuhammadahmad
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      namespace: onlineeventbookingmuhammadahmad
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: 22i1056/cs4067-assgt-eventbooking-22i-1056-muhammadahmad-repo-frontend:latest
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXT_PUBLIC_USER_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: USER_SERVICE_URL
+                  name: onlineeventbookingmuhammadahmad-config
+            - name: EVENT_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: SPRING_BOOT_URL
+                  name: onlineeventbookingmuhammadahmad-config
+          
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: onlineeventbookingmuhammadahmad
+spec:
+  selector:
+    app: frontend
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000

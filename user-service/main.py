@@ -107,7 +107,7 @@ def user_or_admin(current_user: User = Depends(has_role([UserRole.USER, UserRole
 Base.metadata.create_all(bind=engine)
 
 # Routes
-@app.post("/api/auth/login", response_model=Token)
+@app.post("/api/users/auth/login", response_model=Token)
 def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
@@ -126,7 +126,7 @@ def login_for_access_token(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.post("/api/auth/register", response_model=UserResponse)
+@app.post("/api/users/auth/register", response_model=UserResponse)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     # Check if user exists
     db_user = db.query(User).filter(User.email == user.email).first()
@@ -160,7 +160,7 @@ def get_all_users(current_user: User = Depends(admin_only), db: Session = Depend
     users = db.query(User).all()
     return users
 
-@app.post("/api/admin/create", response_model=UserResponse)
+@app.post("/api/users/admin/create", response_model=UserResponse)
 def create_admin(user: UserCreate, current_user: User = Depends(admin_only), db: Session = Depends(get_db)):
     # Check if user exists
     db_user = db.query(User).filter(User.email == user.email).first()
